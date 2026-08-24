@@ -5,30 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Request Status — Admin &amp; IT Concerns</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:opsz,wght@5..1200,400;5..1200,500;5..1200,600;5..1200,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#F6F3EC;
-    --paper-raised:#FFFFFF;
-    --ink:#22262E;
-    --ink-soft:#5B6069;
-    --line:#DDD6C8;
-    --teal:#1E6B5C;
-    --teal-soft:#E4EFEC;
-    --amber:#B8790F;
-    --amber-soft:#F6ECD9;
-    --terracotta:#B4482F;
-    --terracotta-soft:#F5E4DF;
-    --slate:#5B6472;
-    --slate-soft:#E9EAEC;
-    --indigo:#454F82;
-    --indigo-soft:#E7E8F1;
+    /* Ajivasan brand: deep maroon ground, antique gold accents */
+    --paper:#33090F;             /* page background (deep maroon) */
+    --paper-raised:#4A1119;      /* card / panel surface */
+    --paper-raised-2:#551420;    /* input / recessed surface */
+    --ink:#F4E7D3;               /* primary text (warm ivory) */
+    --ink-soft:#CBA477;          /* secondary text (muted gold-tan) */
+    --line:#7A4326;              /* borders (antique bronze) */
+    --gold:#D8B26A;              /* brand gold accent */
+    --gold-bright:#F0CE8F;       /* gold hover/emphasis */
+    --teal:#4FA97C;              /* Completed */
+    --teal-soft:rgba(79,169,124,0.16);
+    --amber:#E0912F;             /* In Process */
+    --amber-soft:rgba(224,145,47,0.16);
+    --terracotta:#E27587;        /* Cancelled */
+    --terracotta-soft:rgba(226,117,135,0.16);
+    --slate:#9BB0C4;             /* On Hold */
+    --slate-soft:rgba(155,176,196,0.15);
+    --indigo:#B49AE0;            /* Ordered new */
+    --indigo-soft:rgba(180,154,224,0.16);
     --radius:14px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background:var(--paper);
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(90,20,25,0.55), transparent 60%),
+      radial-gradient(ellipse 900px 600px at 100% 110%, rgba(20,5,8,0.65), transparent 55%),
+      var(--paper);
     color:var(--ink);
     font-family:'Inter',sans-serif;
     min-height:100vh;
@@ -36,14 +43,14 @@
   }
   .wrap{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
 
-  header.top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:34px;flex-wrap:wrap;gap:10px;}
-  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:26px;letter-spacing:-0.01em;}
-  .brand small{display:block;font-family:'Inter',sans-serif;font-weight:500;font-size:12.5px;color:var(--ink-soft);letter-spacing:.02em;text-transform:uppercase;margin-top:3px;}
+  header.top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;padding-bottom:18px;border-bottom:1px solid var(--line);}
+  .brand{font-family:'Playfair Display',serif;font-weight:600;font-size:27px;letter-spacing:.01em;color:var(--gold);}
+  .brand small{display:block;font-family:'Inter',sans-serif;font-weight:500;font-size:11.5px;color:var(--ink-soft);letter-spacing:.14em;text-transform:uppercase;margin-top:4px;}
   .staff-toggle{font-size:13px;color:var(--ink-soft);background:none;border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s;}
   .staff-toggle:hover{border-color:var(--ink-soft);color:var(--ink);}
 
   .panel{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);padding:26px;margin-bottom:22px;}
-  .panel h2{font-family:'Fraunces',serif;font-weight:500;font-size:19px;margin:0 0 4px;}
+  .panel h2{font-family:'Playfair Display',serif;font-weight:500;font-size:19px;margin:0 0 4px;}
   .panel p.hint{margin:0 0 18px;color:var(--ink-soft);font-size:14px;}
 
   .row{display:flex;gap:10px;flex-wrap:wrap;}
@@ -53,21 +60,22 @@
     padding:11px 13px;
     border:1px solid var(--line);
     border-radius:9px;
-    background:var(--paper);
+    background:var(--paper-raised-2);
     color:var(--ink);
     flex:1;
     min-width:180px;
   }
-  input:focus,select:focus,textarea:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);}
+  input::placeholder,textarea::placeholder{color:var(--ink-soft);opacity:.7;}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold);}
   textarea{width:100%;resize:vertical;min-height:60px;font-family:'Inter',sans-serif;}
 
   button.primary{
     font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
-    background:var(--ink);color:var(--paper-raised);border:none;
+    background:var(--gold);color:#33090F;border:none;
     padding:11px 20px;border-radius:9px;cursor:pointer;transition:.15s;
     white-space:nowrap;
   }
-  button.primary:hover{background:var(--teal);}
+  button.primary:hover{background:var(--gold-bright);}
   button.primary:disabled{opacity:.5;cursor:default;}
   button.ghost{
     font-family:'Inter',sans-serif;font-weight:600;font-size:13px;
@@ -109,7 +117,7 @@
   .ticket .body{padding:18px 20px;flex:1;min-width:0;}
 
   .ticket-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:9px;}
-  .ticket-type{font-family:'Fraunces',serif;font-size:16.5px;font-weight:500;}
+  .ticket-type{font-family:'Playfair Display',serif;font-size:16.5px;font-weight:500;}
   .ticket-meta{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
   .status-pill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;white-space:nowrap;}
   .status-Completed{background:var(--teal-soft);color:var(--teal);}
@@ -131,7 +139,7 @@
   .comment-row textarea{min-height:38px;font-size:13.5px;}
 
   .empty{text-align:center;padding:50px 20px;color:var(--ink-soft);}
-  .empty .glyph{font-family:'Fraunces',serif;font-size:34px;color:var(--line);margin-bottom:10px;}
+  .empty .glyph{font-family:'Playfair Display',serif;font-size:34px;color:var(--line);margin-bottom:10px;}
 
   .staff-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;}
   .staff-controls select{flex:0 0 auto;min-width:150px;}
@@ -143,7 +151,7 @@
     padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--paper-raised);
     color:var(--ink-soft);cursor:pointer;
   }
-  .filter-bar button.active{background:var(--ink);color:var(--paper-raised);border-color:var(--ink);}
+  .filter-bar button.active{background:var(--gold);color:#33090F;border-color:var(--gold);}
 
   footer{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:30px;}
 
@@ -200,7 +208,7 @@
     </div>
   </div>
 
-  <footer>Data syncs directly with the Google Sheet · updates every 15s</footer>
+  <footer>Updates every 15s</footer>
 </div>
 
 <script>
