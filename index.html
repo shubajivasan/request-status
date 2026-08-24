@@ -280,7 +280,8 @@ async function api(action, extra) {
 function esc(s){
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-function statusClass(s){ return 'status-' + String(s||'').replace(/\s+/g,'-'); }
+function statusClass(s){ return 'status-' + String(s||'').trim().replace(/\s+/g,'-'); }
+function normStatus(s){ return String(s||'').trim(); }
 
 // ---------- Ticket rendering ----------
 function ticketHtml(r, opts){
@@ -300,7 +301,7 @@ function ticketHtml(r, opts){
 
   let staffControls = '';
   if (showStaffControls) {
-    const opts2 = STATUS_OPTIONS.map(s => `<option value="${s}" ${s===r['Current Status']?'selected':''}>${s}</option>`).join('');
+    const opts2 = STATUS_OPTIONS.map(s => `<option value="${s}" ${s===normStatus(r['Current Status'])?'selected':''}>${s}</option>`).join('');
     staffControls = `
       <div class="staff-controls">
         <select data-row="${r.rowIndex}" class="statusSelect">${opts2}</select>
@@ -547,7 +548,7 @@ async function staffLogin(){
 
 function buildFilterBar(){
   const bar = document.getElementById('filterBar');
-  const opts = ['All','In Process','On Hold','Ordered new','Completed','Cancelled'];
+  const opts = ['All','Pending','In Process','On Hold','Ordered new','Completed','Cancelled'];
   bar.innerHTML = opts.map(o => `<button data-f="${o}" class="${o===staffFilter?'active':''}">${o}</button>`).join('');
   bar.querySelectorAll('button').forEach(b => {
     b.addEventListener('click', () => {
@@ -571,7 +572,7 @@ async function refreshStaff(){
 
 function renderStaffCache(){
   const resultsEl = document.getElementById('staffResults');
-  const data = staffFilter === 'All' ? staffCache : staffCache.filter(r => r['Current Status'] === staffFilter);
+  const data = staffFilter === 'All' ? staffCache : staffCache.filter(r => normStatus(r['Current Status']) === staffFilter);
   if (!data.length) {
     resultsEl.innerHTML = `<div class="panel empty"><div class="glyph">—</div>No requests in this view.</div>`;
     return;
