@@ -206,6 +206,7 @@
         <div id="submitterMsg"></div>
         <div class="live-note" id="liveNoteSubmitter" style="display:none;"><span class="live-dot"></span>Live — refreshing automatically</div>
       </div>
+      <div id="submitterFilterBar" class="filter-bar" style="display:none;"></div>
       <div id="submitterResults"></div>
     </div>
 
@@ -469,6 +470,7 @@ async function lookupSubmitter(){
   msgEl.innerHTML = '';
   if (!email) { msgEl.innerHTML = '<div class="msg error">Enter an email address</div>'; return; }
   submitterEmail = email;
+  submitterFilter = 'All';
   await refreshSubmitter();
   document.getElementById('liveNoteSubmitter').style.display = 'flex';
   clearInterval(submitterPollTimer);
@@ -476,35 +478,67 @@ async function lookupSubmitter(){
 }
 
 async function refreshSubmitter(){
-  const resultsEl = document.getElementById('submitterResults');
   const msgEl = document.getElementById('submitterMsg');
   try{
-    const data = await api('myRequests', { email: submitterEmail });
+    submitterCache = await api('myRequests', { email: submitterEmail });
     msgEl.innerHTML = '';
-    if (!data.length) {
-      resultsEl.innerHTML = `<div class="panel empty"><div class="glyph">—</div>No requests found for this email yet.</div>`;
-      return;
-    }
-    resultsEl.innerHTML = data.map(r => ticketHtml(r, { submitter: true })).join('');
-    resultsEl.querySelectorAll('.commentBtn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const row = btn.dataset.row;
-        const ta = resultsEl.querySelector(`.commentInput[data-row="${row}"]`);
-        const text = ta.value.trim();
-        if (!text) return;
-        btn.disabled = true;
-        try{
-          await api('addComment', { email: submitterEmail, rowIndex: row, comment: text });
-          await refreshSubmitter();
-        }catch(err){
-          msgEl.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
-        }
-        btn.disabled = false;
-      });
-    });
+    buildSubmitterFilterBar();
+    renderSubmitterCache();
   }catch(err){
     msgEl.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
   }
+}
+
+let submitterCache = [];
+let submitterFilter = 'All';
+
+function buildSubmitterFilterBar(){
+  const bar = document.getElementById('submitterFilterBar');
+  if (!submitterCache.length) { bar.style.display = 'none'; return; }
+  const present = new Set(submitterCache.map(r => normStatus(r['Current Status']) || 'Pending'));
+  const opts = ['All', ...STATUS_OPTIONS.filter(s => present.has(s))];
+  if (opts.length <= 2) { bar.style.display = 'none'; return; } // not worth showing for one status
+  bar.style.display = 'flex';
+  bar.innerHTML = opts.map(o => `<button data-f="${o}" class="${o===submitterFilter?'active':''}">${o}</button>`).join('');
+  bar.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      submitterFilter = b.dataset.f;
+      bar.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      renderSubmitterCache();
+    });
+  });
+}
+
+function renderSubmitterCache(){
+  const resultsEl = document.getElementById('submitterResults');
+  const msgEl = document.getElementById('submitterMsg');
+  const data = submitterFilter === 'All' ? submitterCache : submitterCache.filter(r => normStatus(r['Current Status']) === submitterFilter);
+  if (!submitterCache.length) {
+    resultsEl.innerHTML = `<div class="panel empty"><div class="glyph">—</div>No requests found for this email yet.</div>`;
+    return;
+  }
+  if (!data.length) {
+    resultsEl.innerHTML = `<div class="panel empty"><div class="glyph">—</div>No requests in this view.</div>`;
+    return;
+  }
+  resultsEl.innerHTML = data.map(r => ticketHtml(r, { submitter: true })).join('');
+  resultsEl.querySelectorAll('.commentBtn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.dataset.row;
+      const ta = resultsEl.querySelector(`.commentInput[data-row="${row}"]`);
+      const text = ta.value.trim();
+      if (!text) return;
+      btn.disabled = true;
+      try{
+        await api('addComment', { email: submitterEmail, rowIndex: row, comment: text });
+        await refreshSubmitter();
+      }catch(err){
+        msgEl.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
+      }
+      btn.disabled = false;
+    });
+  });
 }
 
 // ---------- Staff flow ----------
