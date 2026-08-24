@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request Status — Admin &amp; IT Concerns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F3EC;
+    --paper-raised:#FFFFFF;
+    --ink:#22262E;
+    --ink-soft:#5B6069;
+    --line:#DDD6C8;
+    --teal:#1E6B5C;
+    --teal-soft:#E4EFEC;
+    --amber:#B8790F;
+    --amber-soft:#F6ECD9;
+    --terracotta:#B4482F;
+    --terracotta-soft:#F5E4DF;
+    --slate:#5B6472;
+    --slate-soft:#E9EAEC;
+    --indigo:#454F82;
+    --indigo-soft:#E7E8F1;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
+
+  header.top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:34px;flex-wrap:wrap;gap:10px;}
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:26px;letter-spacing:-0.01em;}
+  .brand small{display:block;font-family:'Inter',sans-serif;font-weight:500;font-size:12.5px;color:var(--ink-soft);letter-spacing:.02em;text-transform:uppercase;margin-top:3px;}
+  .staff-toggle{font-size:13px;color:var(--ink-soft);background:none;border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s;}
+  .staff-toggle:hover{border-color:var(--ink-soft);color:var(--ink);}
+
+  .panel{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);padding:26px;margin-bottom:22px;}
+  .panel h2{font-family:'Fraunces',serif;font-weight:500;font-size:19px;margin:0 0 4px;}
+  .panel p.hint{margin:0 0 18px;color:var(--ink-soft);font-size:14px;}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  input[type=email],input[type=text],input[type=password],select,textarea{
+    font-family:'Inter',sans-serif;
+    font-size:14.5px;
+    padding:11px 13px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    background:var(--paper);
+    color:var(--ink);
+    flex:1;
+    min-width:180px;
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);}
+  textarea{width:100%;resize:vertical;min-height:60px;font-family:'Inter',sans-serif;}
+
+  button.primary{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
+    background:var(--ink);color:var(--paper-raised);border:none;
+    padding:11px 20px;border-radius:9px;cursor:pointer;transition:.15s;
+    white-space:nowrap;
+  }
+  button.primary:hover{background:var(--teal);}
+  button.primary:disabled{opacity:.5;cursor:default;}
+  button.ghost{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:13px;
+    background:none;color:var(--ink-soft);border:1px solid var(--line);
+    padding:8px 14px;border-radius:8px;cursor:pointer;
+  }
+  button.ghost:hover{border-color:var(--ink-soft);color:var(--ink);}
+
+  .msg{font-size:13.5px;padding:10px 14px;border-radius:8px;margin-top:12px;}
+  .msg.error{background:var(--terracotta-soft);color:var(--terracotta);}
+  .msg.ok{background:var(--teal-soft);color:var(--teal);}
+
+  .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-right:6px;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .live-note{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;margin-top:2px;}
+
+  /* Ticket stub card */
+  .ticket{
+    position:relative;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:16px;
+    display:flex;
+    overflow:hidden;
+  }
+  .ticket .spine{
+    width:8px;
+    background:repeating-linear-gradient(to bottom, var(--line) 0 6px, transparent 6px 13px);
+    flex-shrink:0;
+    position:relative;
+  }
+  .ticket .spine::before,.ticket .spine::after{
+    content:'';position:absolute;left:-8px;width:16px;height:16px;border-radius:50%;
+    background:var(--paper);border:1px solid var(--line);
+  }
+  .ticket .spine::before{top:-9px;}
+  .ticket .spine::after{bottom:-9px;}
+  .ticket .body{padding:18px 20px;flex:1;min-width:0;}
+
+  .ticket-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:9px;}
+  .ticket-type{font-family:'Fraunces',serif;font-size:16.5px;font-weight:500;}
+  .ticket-meta{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+  .status-pill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;white-space:nowrap;}
+  .status-Completed{background:var(--teal-soft);color:var(--teal);}
+  .status-In-Process{background:var(--amber-soft);color:var(--amber);}
+  .status-On-Hold{background:var(--slate-soft);color:var(--slate);}
+  .status-Cancelled{background:var(--terracotta-soft);color:var(--terracotta);}
+  .status-Ordered-new{background:var(--indigo-soft);color:var(--indigo);}
+
+  .ticket-details{font-size:14.5px;line-height:1.5;color:var(--ink);margin-bottom:10px;}
+  .ticket-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:13px;color:var(--ink-soft);margin-bottom:10px;}
+  .ticket-grid b{color:var(--ink);font-weight:600;}
+  .ticket-remark{
+    background:var(--paper);border:1px dashed var(--line);border-radius:9px;
+    padding:10px 12px;font-size:13px;color:var(--ink-soft);white-space:pre-wrap;margin-bottom:10px;
+  }
+  .ticket-remark b{color:var(--ink);}
+
+  .comment-row{display:flex;gap:8px;margin-top:8px;}
+  .comment-row textarea{min-height:38px;font-size:13.5px;}
+
+  .empty{text-align:center;padding:50px 20px;color:var(--ink-soft);}
+  .empty .glyph{font-family:'Fraunces',serif;font-size:34px;color:var(--line);margin-bottom:10px;}
+
+  .staff-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+  .staff-controls select{flex:0 0 auto;min-width:150px;}
+  .staff-controls input{flex:0 0 auto;min-width:160px;}
+
+  .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .filter-bar button{
+    font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
+    padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--paper-raised);
+    color:var(--ink-soft);cursor:pointer;
+  }
+  .filter-bar button.active{background:var(--ink);color:var(--paper-raised);border-color:var(--ink);}
+
+  footer{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:30px;}
+
+  @media (max-width:520px){
+    .ticket-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">Request Status<small>Admin &amp; IT Concerns</small></div>
+    <button class="staff-toggle" id="staffToggleBtn" type="button">Staff sign in</button>
+  </header>
+
+  <!-- SUBMITTER VIEW -->
+  <div id="submitterView">
+    <div class="panel">
+      <h2>Check your requests</h2>
+      <p class="hint">Enter the email address you used when you submitted the form.</p>
+      <div class="row">
+        <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+        <button class="primary" id="lookupBtn" type="button">Show my requests</button>
+      </div>
+      <div id="submitterMsg"></div>
+      <div class="live-note" id="liveNoteSubmitter" style="display:none;"><span class="live-dot"></span>Live — refreshing automatically</div>
+    </div>
+    <div id="submitterResults"></div>
+  </div>
+
+  <!-- STAFF VIEW -->
+  <div id="staffView" style="display:none;">
+    <div class="panel">
+      <h2>Staff sign in</h2>
+      <p class="hint">Enter the staff passcode to view and update all requests.</p>
+      <div class="row">
+        <input type="password" id="passcodeInput" placeholder="Passcode">
+        <button class="primary" id="staffLoginBtn" type="button">Sign in</button>
+        <button class="ghost" id="backToSubmitterBtn" type="button">Back</button>
+      </div>
+      <div id="staffMsg"></div>
+    </div>
+
+    <div id="staffDashboard" style="display:none;">
+      <div class="panel" style="padding:16px 20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div class="live-note"><span class="live-dot"></span>Live — refreshing automatically</div>
+          <button class="ghost" id="signOutBtn" type="button">Sign out</button>
+        </div>
+      </div>
+      <div class="filter-bar" id="filterBar"></div>
+      <div id="staffResults"></div>
+    </div>
+  </div>
+
+  <footer>Data syncs directly with the Google Sheet · updates every 15s</footer>
+</div>
+
+<script>
+/* ====================== CONFIG ====================== */
+// Paste the Apps Script Web App URL here after deployment (see SETUP_INSTRUCTIONS.md)
+const API_URL = 'https://script.google.com/macros/s/AKfycbxxhh1S2OgGayFJBLztvDhYpUX3Z8txRHMYp7hQ5EZwKIdqMH7iH-bnEhK3bO50x9xT/exec';
+const POLL_MS = 15000;
+/* ====================================================== */
+
+const STATUS_OPTIONS = ['In Process','Completed','On Hold','Cancelled','Ordered new'];
+
+let submitterEmail = null;
+let submitterPollTimer = null;
+let staffPasscode = null;
+let staffPollTimer = null;
+let staffFilter = 'All';
+
+// ---------- API helper ----------
+async function api(action, extra) {
+  const payload = Object.assign({ action }, extra || {});
+  const isWrite = ['addComment','updateStatus','staffAuth','staffRequests'].includes(action);
+  let res;
+  if (isWrite) {
+    res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+  } else {
+    const qs = new URLSearchParams(payload).toString();
+    res = await fetch(API_URL + '?' + qs);
+  }
+  const json = await res.json();
+  if (!json.success) throw new Error(json.error || 'Request failed');
+  return json.data;
+}
+
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function statusClass(s){ return 'status-' + String(s||'').replace(/\s+/g,'-'); }
+
+// ---------- Ticket rendering ----------
+function ticketHtml(r, opts){
+  opts = opts || {};
+  const remark = r['Expected Completion Date / Remark'];
+  const custom = r['Custom Remark'];
+  const showStaffControls = !!opts.staff;
+
+  let remarkBlock = '';
+  if (remark || custom) {
+    remarkBlock = `<div class="ticket-remark">`
+      + (remark ? `<b>Team note:</b> ${esc(remark)}` : '')
+      + (remark && custom ? '<br><br>' : '')
+      + (custom ? esc(custom) : '')
+      + `</div>`;
+  }
+
+  let staffControls = '';
+  if (showStaffControls) {
+    const opts2 = STATUS_OPTIONS.map(s => `<option value="${s}" ${s===r['Current Status']?'selected':''}>${s}</option>`).join('');
+    staffControls = `
+      <div class="staff-controls">
+        <select data-row="${r.rowIndex}" class="statusSelect">${opts2}</select>
+        <input type="text" class="remarkInput" data-row="${r.rowIndex}" placeholder="Remark" value="${esc(remark||'')}">
+        <input type="date" class="dateInput" data-row="${r.rowIndex}">
+        <button class="primary saveBtn" data-row="${r.rowIndex}" type="button">Update</button>
+      </div>`;
+  }
+
+  let commentRow = '';
+  if (opts.submitter) {
+    commentRow = `
+      <div class="comment-row">
+        <textarea placeholder="Add a comment for the team..." class="commentInput" data-row="${r.rowIndex}"></textarea>
+        <button class="primary commentBtn" data-row="${r.rowIndex}" type="button">Send</button>
+      </div>`;
+  }
+
+  return `
+    <div class="ticket">
+      <div class="spine"></div>
+      <div class="body">
+        <div class="ticket-top">
+          <div>
+            <div class="ticket-type">${esc(r['Request Type'])}</div>
+            <div class="ticket-meta">${esc(r['Your Name'])}${r['Your Department'] ? ' · ' + esc(r['Your Department']) : ''} · ${esc(r['Timestamp'])}</div>
+          </div>
+          <span class="status-pill ${statusClass(r['Current Status'])}">${esc(r['Current Status']||'—')}</span>
+        </div>
+        <div class="ticket-details">${esc(r['Deatils Of Your Concern / Requirement.'])}</div>
+        <div class="ticket-grid">
+          <div><b>Location:</b> ${esc(r['Location Name (Branch / School / NGO)']||'—')}</div>
+          <div><b>Deadline:</b> ${esc(r['Date Required / Deadline']||'—')}</div>
+          <div><b>Completed on:</b> ${esc(r['Completion Date']||'—')}</div>
+          <div><b>Email:</b> ${esc(r['Email Address']||'—')}</div>
+        </div>
+        ${remarkBlock}
+        ${staffControls}
+        ${commentRow}
+      </div>
+    </div>`;
+}
+
+// ---------- Submitter flow ----------
+document.getElementById('lookupBtn').addEventListener('click', lookupSubmitter);
+document.getElementById('emailInput').addEventListener('keydown', e => { if(e.key==='Enter') lookupSubmitter(); });
+
+async function lookupSubmitter(){
+  const email = document.getElementById('emailInput').value.trim();
+  const msgEl = document.getElementById('submitterMsg');
+  msgEl.innerHTML = '';
+  if (!email) { msgEl.innerHTML = '<div class="msg error">Enter an email address</div>'; return; }
+  submitterEmail = email;
+  await refreshSubmitter();
+  document.getElementById('liveNoteSubmitter').style.display = 'flex';
+  clearInterval(submitterPollTimer);
+  submitterPollTimer = setInterval(refreshSubmitter, POLL_MS);
+}
+
+async function refreshSubmitter(){
+  const resultsEl = document.getElementById('submitterResults');
+  const msgEl = document.getElementById('submitterMsg');
+  try{
+    const data = await api('myRequests', { email: submitterEmail });
+    msgEl.innerHTML = '';
+    if (!data.length) {
+      resultsEl.innerHTML = `<div class="panel empty"><div class="glyph">—</div>No requests found for this email yet.</div>`;
+      return;
+    }
+    resultsEl.innerHTML = data.map(r => ticketHtml(r, { submitter: true })).join('');
+    resultsEl.querySelectorAll('.commentBtn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const row = btn.dataset.row;
+        const ta = resultsEl.querySelector(`.commentInput[data-row="${row}"]`);
+        const text = ta.value.trim();
+        if (!text) return;
+        btn.disabled = true;
+        try{
+          await api('addComment', { email: submitterEmail, rowIndex: row, comment: text });
+          await refreshSubmitter();
+        }catch(err){
+          msgEl.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
+        }
+        btn.disabled = false;
+      });
+    });
+  }catch(err){
+    msgEl.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
+  }
+}
+
+// ---------- Staff flow ----------
+document.getElementById('staffToggleBtn').addEventListener('click', () => {
+  document.getElementById('submitterView').style.display = 'none';
+  document.getElementById('staffView').style.display = 'block';
+  clearInterval(submitterPollTimer);
+});
+document.getElementById('backToSubmitterBtn').addEventListener('click', () => {
+  document.getElementById('staffView').style.display = 'none';
+  document.getElementById('submitterView').style.display = 'block';
+  clearInterval(staffPollTimer);
+});
+document.getElementById('signOutBtn').addEventListener('click', () => {
+  staffPasscode = null;
+  clearInterval(staffPollTimer);
+  document.getElementById('staffDashboard').style.display = 'none';
+  document.getElementById('passcodeInput').value = '';
+});
+
+document.getElementById('staffLoginBtn').addEventListener('click', staffLogin);
+document.getElementById('passcodeInput').addEventListener('keydown', e => { if(e.key==='Enter') staffLogin(); });
+
+async function staffLogin(){
+  const pass = document.getElementById('passcodeInput').value;
+  const msgEl = document.getElementById('staffMsg');
+  msgEl.innerHTML = '';
+  if (!pass) return;
+  try{
+    await api('staffAuth', { passcode: pass });
+    staffPasscode = pass;
+    document.getElementById('staffDashboard').style.display = 'block';
+    buildFilterBar();
+    await refreshStaff();
+    clearInterval(staffPollTimer);
+    staffPollTimer = setInterval(refreshStaff, POLL_MS);
+  }catch(err){
+    msgEl.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
+  }
+}
+
+function buildFilterBar(){
+  const bar = document.getElementById('filterBar');
+  const opts = ['All','In Process','On Hold','Ordered new','Completed','Cancelled'];
+  bar.innerHTML = opts.map(o => `<button data-f="${o}" class="${o===staffFilter?'active':''}">${o}</button>`).join('');
+  bar.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      staffFilter = b.dataset.f;
+      bar.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      renderStaffCache();
+    });
+  });
+}
+
+let staffCache = [];
+async function refreshStaff(){
+  try{
+    staffCache = await api('staffRequests', { passcode: staffPasscode });
+    renderStaffCache();
+  }catch(err){
+    document.getElementById('staffResults').innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
+  }
+}
+
+function renderStaffCache(){
+  const resultsEl = document.getElementById('staffResults');
+  const data = staffFilter === 'All' ? staffCache : staffCache.filter(r => r['Current Status'] === staffFilter);
+  if (!data.length) {
+    resultsEl.innerHTML = `<div class="panel empty"><div class="glyph">—</div>No requests in this view.</div>`;
+    return;
+  }
+  resultsEl.innerHTML = data.map(r => ticketHtml(r, { staff: true })).join('');
+  resultsEl.querySelectorAll('.saveBtn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.dataset.row;
+      const status = resultsEl.querySelector(`.statusSelect[data-row="${row}"]`).value;
+      const remark = resultsEl.querySelector(`.remarkInput[data-row="${row}"]`).value;
+      const date = resultsEl.querySelector(`.dateInput[data-row="${row}"]`).value;
+      btn.disabled = true; btn.textContent = 'Saving...';
+      try{
+        await api('updateStatus', { passcode: staffPasscode, rowIndex: row, status, remark, completionDate: date });
+        await refreshStaff();
+      }catch(err){
+        alert(err.message);
+      }
+      btn.disabled = false; btn.textContent = 'Update';
+    });
+  });
+}
+</script>
+</body>
+</html>
