@@ -119,7 +119,13 @@
   .ticket-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:9px;}
   .ticket-type{font-family:'Playfair Display',serif;font-size:16.5px;font-weight:500;}
   .ticket-meta{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+  .ticket-id{
+    font-family:'Inter',monospace;font-size:11.5px;font-weight:700;letter-spacing:.03em;
+    color:var(--gold);background:rgba(216,178,106,0.12);border:1px solid var(--line);
+    padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:6px;
+  }
   .status-pill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;white-space:nowrap;}
+  .status-Pending{background:rgba(216,178,106,0.18);color:var(--gold);}
   .status-Completed{background:var(--teal-soft);color:var(--teal);}
   .status-In-Process{background:var(--amber-soft);color:var(--amber);}
   .status-On-Hold{background:var(--slate-soft);color:var(--slate);}
@@ -155,6 +161,20 @@
 
   footer{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:30px;}
 
+  .tab-bar{display:flex;gap:6px;margin-bottom:16px;}
+  .tab-bar button{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;
+    padding:9px 16px;border-radius:9px;border:1px solid var(--line);
+    background:var(--paper-raised);color:var(--ink-soft);cursor:pointer;transition:.15s;
+  }
+  .tab-bar button.active{background:var(--gold);color:#33090F;border-color:var(--gold);}
+
+  .field-label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin:0 0 5px;}
+  .field-group{margin-bottom:14px;}
+  .field-row{display:flex;gap:12px;flex-wrap:wrap;}
+  .field-row .field-group{flex:1;min-width:160px;}
+  .new-request-toggle{margin-bottom:16px;}
+
   @media (max-width:520px){
     .ticket-grid{grid-template-columns:1fr;}
   }
@@ -170,17 +190,26 @@
 
   <!-- SUBMITTER VIEW -->
   <div id="submitterView">
-    <div class="panel">
-      <h2>Check your requests</h2>
-      <p class="hint">Enter the email address you used when you submitted the form.</p>
-      <div class="row">
-        <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
-        <button class="primary" id="lookupBtn" type="button">Show my requests</button>
-      </div>
-      <div id="submitterMsg"></div>
-      <div class="live-note" id="liveNoteSubmitter" style="display:none;"><span class="live-dot"></span>Live — refreshing automatically</div>
+    <div class="tab-bar">
+      <button id="tabCheckBtn" class="active" type="button">Check my requests</button>
+      <button id="tabNewBtn" type="button">New request</button>
     </div>
-    <div id="submitterResults"></div>
+
+    <div id="checkTab">
+      <div class="panel">
+        <h2>Check your requests</h2>
+        <p class="hint">Enter the email address you used when you submitted the form.</p>
+        <div class="row">
+          <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+          <button class="primary" id="lookupBtn" type="button">Show my requests</button>
+        </div>
+        <div id="submitterMsg"></div>
+        <div class="live-note" id="liveNoteSubmitter" style="display:none;"><span class="live-dot"></span>Live — refreshing automatically</div>
+      </div>
+      <div id="submitterResults"></div>
+    </div>
+
+    <div id="newTab" style="display:none;"></div>
   </div>
 
   <!-- STAFF VIEW -->
@@ -200,9 +229,13 @@
       <div class="panel" style="padding:16px 20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
           <div class="live-note"><span class="live-dot"></span>Live — refreshing automatically</div>
-          <button class="ghost" id="signOutBtn" type="button">Sign out</button>
+          <div style="display:flex;gap:8px;">
+            <button class="ghost" id="staffNewToggleBtn" type="button">+ New request</button>
+            <button class="ghost" id="signOutBtn" type="button">Sign out</button>
+          </div>
         </div>
       </div>
+      <div id="staffNewWrap" style="display:none;"></div>
       <div class="filter-bar" id="filterBar"></div>
       <div id="staffResults"></div>
     </div>
@@ -218,7 +251,9 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxxhh1S2OgGayFJBLztvDhY
 const POLL_MS = 15000;
 /* ====================================================== */
 
-const STATUS_OPTIONS = ['In Process','Completed','On Hold','Cancelled','Ordered new'];
+const STATUS_OPTIONS = ['Pending','In Process','Completed','On Hold','Cancelled','Ordered new'];
+const REQUEST_TYPES = ['IT','Admin'];
+const LOCATION_TYPES = ['Niketan','Branch','School'];
 
 let submitterEmail = null;
 let submitterPollTimer = null;
@@ -290,6 +325,7 @@ function ticketHtml(r, opts){
       <div class="body">
         <div class="ticket-top">
           <div>
+            <div class="ticket-id">${esc(r['Ticket ID'])}</div>
             <div class="ticket-type">${esc(r['Request Type'])}</div>
             <div class="ticket-meta">${esc(r['Your Name'])}${r['Your Department'] ? ' · ' + esc(r['Your Department']) : ''} · ${esc(r['Timestamp'])}</div>
           </div>
@@ -308,6 +344,119 @@ function ticketHtml(r, opts){
       </div>
     </div>`;
 }
+
+// ---------- New Request form (shared by submitter + staff views) ----------
+function requestFormHtml(prefix){
+  const typeOpts = REQUEST_TYPES.map(t => `<option value="${t}">${t}</option>`).join('');
+  const locOpts = LOCATION_TYPES.map(t => `<option value="${t}">${t}</option>`).join('');
+  return `
+    <div class="panel">
+      <h2>Submit a new request</h2>
+      <p class="hint">Fill in the details below — this is added directly to the tracker.</p>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Your name *</label>
+          <input type="text" id="${prefix}Name">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Your department</label>
+          <input type="text" id="${prefix}Dept">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Request type *</label>
+          <select id="${prefix}Type">${typeOpts}</select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email address *</label>
+          <input type="email" id="${prefix}Email">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Details of your concern / requirement *</label>
+        <textarea id="${prefix}Details" style="min-height:80px;"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Location of concern</label>
+          <select id="${prefix}LocType">${locOpts}</select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Location name (branch/school/NGO)</label>
+          <input type="text" id="${prefix}LocName">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Date required / deadline</label>
+          <input type="date" id="${prefix}Deadline">
+        </div>
+      </div>
+      <button class="primary" id="${prefix}SubmitBtn" type="button">Submit request</button>
+      <div id="${prefix}Msg"></div>
+    </div>`;
+}
+
+function wireRequestForm(prefix, onSuccess){
+  document.getElementById(prefix + 'SubmitBtn').addEventListener('click', async () => {
+    const msgEl = document.getElementById(prefix + 'Msg');
+    const btn = document.getElementById(prefix + 'SubmitBtn');
+    const payload = {
+      name: document.getElementById(prefix + 'Name').value.trim(),
+      department: document.getElementById(prefix + 'Dept').value.trim(),
+      requestType: document.getElementById(prefix + 'Type').value,
+      details: document.getElementById(prefix + 'Details').value.trim(),
+      locationType: document.getElementById(prefix + 'LocType').value,
+      locationName: document.getElementById(prefix + 'LocName').value.trim(),
+      deadline: document.getElementById(prefix + 'Deadline').value,
+      email: document.getElementById(prefix + 'Email').value.trim()
+    };
+    if (!payload.name || !payload.requestType || !payload.details || !payload.email) {
+      msgEl.innerHTML = '<div class="msg error">Please fill in all required fields (*)</div>';
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Submitting...';
+    try {
+      const result = await api('submitRequest', payload);
+      msgEl.innerHTML = `<div class="msg ok">Request submitted — your ticket ID is <b>${esc(result.ticketId)}</b>.</div>`;
+      ['Name','Dept','Details','LocName','Deadline'].forEach(f => document.getElementById(prefix + f).value = '');
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      msgEl.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
+    }
+    btn.disabled = false; btn.textContent = 'Submit request';
+  });
+}
+
+// Submitter "New request" tab
+document.getElementById('newTab').innerHTML = requestFormHtml('pub');
+wireRequestForm('pub');
+
+document.getElementById('tabCheckBtn').addEventListener('click', () => {
+  document.getElementById('tabCheckBtn').classList.add('active');
+  document.getElementById('tabNewBtn').classList.remove('active');
+  document.getElementById('checkTab').style.display = 'block';
+  document.getElementById('newTab').style.display = 'none';
+});
+document.getElementById('tabNewBtn').addEventListener('click', () => {
+  document.getElementById('tabNewBtn').classList.add('active');
+  document.getElementById('tabCheckBtn').classList.remove('active');
+  document.getElementById('newTab').style.display = 'block';
+  document.getElementById('checkTab').style.display = 'none';
+});
+
+// Staff "+ New request" toggle
+let staffFormBuilt = false;
+document.getElementById('staffNewToggleBtn').addEventListener('click', () => {
+  const wrap = document.getElementById('staffNewWrap');
+  const open = wrap.style.display === 'none';
+  wrap.style.display = open ? 'block' : 'none';
+  document.getElementById('staffNewToggleBtn').textContent = open ? 'Hide form' : '+ New request';
+  if (open && !staffFormBuilt) {
+    wrap.innerHTML = requestFormHtml('staff');
+    wireRequestForm('staff', refreshStaff);
+    staffFormBuilt = true;
+  }
+});
 
 // ---------- Submitter flow ----------
 document.getElementById('lookupBtn').addEventListener('click', lookupSubmitter);
