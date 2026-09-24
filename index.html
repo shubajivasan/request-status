@@ -228,7 +228,7 @@
   <div id="staffView" style="display:none;">
     <div class="panel">
       <h2>Staff sign in</h2>
-      <p class="hint">Enter the staff passcode to view and update all requests.</p>
+      <p class="hint" id="staffLoginHint">Enter the staff passcode to view and update requests.</p>
       <div class="row">
         <input type="password" id="passcodeInput" placeholder="Passcode">
         <button class="primary" id="staffLoginBtn" type="button">Sign in</button>
@@ -393,16 +393,20 @@ function switchDept(key){
   document.getElementById('newTab').innerHTML = requestFormHtml('pub');
   wireRequestForm('pub');
 
-  // Reset staff dashboard state if signed in
+  // Passcodes are department-scoped now — sign out so the other team has to
+  // enter their own passcode rather than reusing this one across departments.
   if (staffPasscode) {
+    staffPasscode = null;
+    clearInterval(staffPollTimer);
     staffFilter = 'All';
     staffCache = [];
+    document.getElementById('staffDashboard').style.display = 'none';
     document.getElementById('staffNewWrap').innerHTML = '';
     document.getElementById('staffNewWrap').style.display = 'none';
     document.getElementById('staffNewToggleBtn').textContent = '+ New request';
+    document.getElementById('passcodeInput').value = '';
+    document.getElementById('staffMsg').innerHTML = `<div class="msg ok">Switched department — sign in again with the ${cfg().label} passcode.</div>`;
     staffFormBuilt = { adminit:false, creatives:false };
-    buildFilterBar();
-    refreshStaff();
   }
 }
 
@@ -415,6 +419,8 @@ function updateSearchPanelText(){
   const input = document.getElementById('searchInput');
   input.type = c.searchType === 'email' ? 'email' : 'text';
   input.placeholder = c.searchPlaceholder;
+  document.getElementById('staffLoginHint').textContent =
+    `Enter the ${c.label} staff passcode to view and update these requests.`;
 }
 
 // ---------- Ticket rendering ----------
