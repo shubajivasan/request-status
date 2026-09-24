@@ -337,7 +337,7 @@ let staffFormBuilt = { adminit:false, creatives:false };
 
 // ---------- API helper ----------
 async function api(action, extra) {
-  const payload = Object.assign({ action, department: currentDept }, extra || {});
+  const payload = Object.assign({}, extra || {}, { action, department: currentDept });
   const isWrite = ['addComment','updateStatus','staffAuth','staffRequests','submitRequest'].includes(action);
   let res;
   if (isWrite) {
