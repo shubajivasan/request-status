@@ -3,29 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Request Status — Admin &amp; IT Concerns</title>
+<title>Request Status — Ajivasan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:opsz,wght@5..1200,400;5..1200,500;5..1200,600;5..1200,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* Ajivasan brand: deep maroon ground, antique gold accents */
-    --paper:#33090F;             /* page background (deep maroon) */
-    --paper-raised:#4A1119;      /* card / panel surface */
-    --paper-raised-2:#551420;    /* input / recessed surface */
-    --ink:#F4E7D3;               /* primary text (warm ivory) */
-    --ink-soft:#CBA477;          /* secondary text (muted gold-tan) */
-    --line:#7A4326;              /* borders (antique bronze) */
-    --gold:#D8B26A;              /* brand gold accent */
-    --gold-bright:#F0CE8F;       /* gold hover/emphasis */
-    --teal:#4FA97C;              /* Completed */
+    --paper:#33090F;
+    --paper-raised:#4A1119;
+    --paper-raised-2:#551420;
+    --ink:#F4E7D3;
+    --ink-soft:#CBA477;
+    --line:#7A4326;
+    --gold:#D8B26A;
+    --gold-bright:#F0CE8F;
+    --teal:#4FA97C;
     --teal-soft:rgba(79,169,124,0.16);
-    --amber:#E0912F;             /* In Process */
+    --amber:#E0912F;
     --amber-soft:rgba(224,145,47,0.16);
-    --terracotta:#E27587;        /* Cancelled */
+    --terracotta:#E27587;
     --terracotta-soft:rgba(226,117,135,0.16);
-    --slate:#9BB0C4;             /* On Hold */
+    --slate:#9BB0C4;
     --slate-soft:rgba(155,176,196,0.15);
-    --indigo:#B49AE0;            /* Ordered new */
+    --indigo:#B49AE0;
     --indigo-soft:rgba(180,154,224,0.16);
     --radius:14px;
   }
@@ -49,12 +48,24 @@
   .staff-toggle{font-size:13px;color:var(--ink-soft);background:none;border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s;}
   .staff-toggle:hover{border-color:var(--ink-soft);color:var(--ink);}
 
+  /* Department selector */
+  .dept-bar{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+  .dept-card{
+    flex:1;min-width:200px;
+    background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;cursor:pointer;transition:.15s;
+  }
+  .dept-card:hover{border-color:var(--gold);}
+  .dept-card.active{border-color:var(--gold);background:linear-gradient(180deg, rgba(216,178,106,0.10), transparent);}
+  .dept-card .dept-name{font-family:'Playfair Display',serif;font-size:16.5px;font-weight:600;color:var(--ink);}
+  .dept-card .dept-sub{font-size:12px;color:var(--ink-soft);margin-top:3px;}
+
   .panel{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);padding:26px;margin-bottom:22px;}
   .panel h2{font-family:'Playfair Display',serif;font-weight:500;font-size:19px;margin:0 0 4px;}
   .panel p.hint{margin:0 0 18px;color:var(--ink-soft);font-size:14px;}
 
   .row{display:flex;gap:10px;flex-wrap:wrap;}
-  input[type=email],input[type=text],input[type=password],select,textarea{
+  input[type=email],input[type=text],input[type=password],input[type=date],select,textarea{
     font-family:'Inter',sans-serif;
     font-size:14.5px;
     padding:11px 13px;
@@ -92,7 +103,6 @@
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
   .live-note{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;margin-top:2px;}
 
-  /* Ticket stub card */
   .ticket{
     position:relative;
     background:var(--paper-raised);
@@ -117,13 +127,13 @@
   .ticket .body{padding:18px 20px;flex:1;min-width:0;}
 
   .ticket-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:9px;}
-  .ticket-type{font-family:'Playfair Display',serif;font-size:16.5px;font-weight:500;}
-  .ticket-meta{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
   .ticket-id{
     font-family:'Inter',monospace;font-size:11.5px;font-weight:700;letter-spacing:.03em;
     color:var(--gold);background:rgba(216,178,106,0.12);border:1px solid var(--line);
     padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:6px;
   }
+  .ticket-type{font-family:'Playfair Display',serif;font-size:16.5px;font-weight:500;}
+  .ticket-meta{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
   .status-pill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;white-space:nowrap;}
   .status-Pending{background:rgba(216,178,106,0.18);color:var(--gold);}
   .status-Completed{background:var(--teal-soft);color:var(--teal);}
@@ -149,7 +159,7 @@
 
   .staff-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;}
   .staff-controls select{flex:0 0 auto;min-width:150px;}
-  .staff-controls input{flex:0 0 auto;min-width:160px;}
+  .staff-controls input{flex:0 0 auto;min-width:150px;}
 
   .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
   .filter-bar button{
@@ -173,7 +183,6 @@
   .field-group{margin-bottom:14px;}
   .field-row{display:flex;gap:12px;flex-wrap:wrap;}
   .field-row .field-group{flex:1;min-width:160px;}
-  .new-request-toggle{margin-bottom:16px;}
 
   @media (max-width:520px){
     .ticket-grid{grid-template-columns:1fr;}
@@ -184,9 +193,11 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="brand">Request Status<small>Admin &amp; IT Concerns</small></div>
+    <div class="brand">Request Status<small>Ajivasan</small></div>
     <button class="staff-toggle" id="staffToggleBtn" type="button">Staff sign in</button>
   </header>
+
+  <div class="dept-bar" id="deptBar"></div>
 
   <!-- SUBMITTER VIEW -->
   <div id="submitterView">
@@ -198,9 +209,9 @@
     <div id="checkTab">
       <div class="panel">
         <h2>Check your requests</h2>
-        <p class="hint">Enter the email address you used when you submitted the form.</p>
+        <p class="hint" id="checkHint"></p>
         <div class="row">
-          <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+          <input type="text" id="searchInput" placeholder="">
           <button class="primary" id="lookupBtn" type="button">Show my requests</button>
         </div>
         <div id="submitterMsg"></div>
@@ -247,25 +258,82 @@
 
 <script>
 /* ====================== CONFIG ====================== */
-// Paste the Apps Script Web App URL here after deployment (see SETUP_INSTRUCTIONS.md)
 const API_URL = 'https://script.google.com/macros/s/AKfycbxxhh1S2OgGayFJBLztvDhYpUX3Z8txRHMYp7hQ5EZwKIdqMH7iH-bnEhK3bO50x9xT/exec';
 const POLL_MS = 15000;
+
+// Mirrors the DEPARTMENTS config in Code.gs — keep both in sync when editing.
+const DEPARTMENTS = {
+  adminit: {
+    label: 'Admin & IT',
+    sub: 'IT equipment, admin & facilities requests',
+    searchLabel: 'Email address',
+    searchType: 'email',
+    searchPlaceholder: 'you@example.com',
+    titleField: 'Request Type',
+    nameField: 'Your Name',
+    detailField: 'Deatils Of Your Concern / Requirement.',
+    statusField: 'Current Status',
+    commentField: 'Custom Remark',
+    statusOptions: ['Pending','In Process','Completed','On Hold','Cancelled','Ordered new'],
+    formFields: [
+      { key:'name',         header:'Your Name',                                   label:'Your name',       type:'text',     required:true },
+      { key:'department',   header:'Your Department',                             label:'Your department', type:'text' },
+      { key:'requestType',  header:'Request Type',                                label:'Request type',    type:'select', required:true, options:['IT','Admin'] },
+      { key:'email',        header:'Email Address',                               label:'Email address',   type:'email',    required:true },
+      { key:'details',      header:'Deatils Of Your Concern / Requirement.',      label:'Details of your concern / requirement', type:'textarea', required:true },
+      { key:'locationType', header:'Location Of Concern',                         label:'Location of concern', type:'select', options:['Niketan','Branch','School'] },
+      { key:'locationName', header:'Location Name (Branch / School / NGO)',       label:'Location name (branch/school/NGO)', type:'text' },
+      { key:'deadline',     header:'Date Required / Deadline',                    label:'Date required / deadline', type:'date' }
+    ],
+    updateFields: [
+      { key:'remark',         header:'Expected Completion Date / Remark', label:'Remark',          type:'text' },
+      { key:'completionDate', header:'Completion Date',                   label:'Completion date', type:'date' }
+    ]
+  },
+  creatives: {
+    label: 'Creatives Requirement',
+    sub: 'Design, video & social media requests',
+    searchLabel: 'Task Alloted By (your name)',
+    searchType: 'text',
+    searchPlaceholder: 'Your name as entered on the form',
+    titleField: 'Type Of Creative/Post',
+    nameField: 'Task Alloted By:',
+    detailField: 'Captions/Suggestions:',
+    statusField: 'Status By Marketing Team',
+    commentField: 'Custom Remark',
+    statusOptions: ['Pending','In Process','Completed','On Hold','Cancelled'],
+    formFields: [
+      { key:'type',           header:'Type Of Creative/Post', label:'Type of creative/post', type:'select', required:true,
+        options:['Static Creative (For Campaign)','Video (For Campaign)','Static Creative (For Social Media: Posts, Stories)','Reel/Video (For Social Media)','Other (BookMyshow, Insider, etc.)','Static Creative (Banner, Frames)'] },
+      { key:'otherDesc',      header:'Creative Description (If "Other" Selected In The Above Question)', label:'Creative description (if "Other" selected above)', type:'textarea' },
+      { key:'name',           header:'Task Alloted By:',      label:'Task alloted by', type:'text', required:true },
+      { key:'deadline',       header:'Deadline:',             label:'Deadline',        type:'date', required:true },
+      { key:'captions',       header:'Captions/Suggestions:', label:'Captions/suggestions', type:'textarea' },
+      { key:'referenceLinks', header:'Reference Links (If Any Photo/Video)', label:'Reference links (if any photo/video)', type:'text' }
+    ],
+    updateFields: [
+      { key:'completionDate', header:'Date Of Completion',    label:'Completion date', type:'date' },
+      { key:'deliveredOn',    header:'Creative Delivered On', label:'Delivered on',    type:'date' }
+    ]
+  }
+};
 /* ====================================================== */
 
-const STATUS_OPTIONS = ['Pending','In Process','Completed','On Hold','Cancelled','Ordered new'];
-const REQUEST_TYPES = ['IT','Admin'];
-const LOCATION_TYPES = ['Niketan','Branch','School'];
-
-let submitterEmail = null;
+let currentDept = 'adminit';
+let submitterEmail = null; // holds the search value (email or name depending on dept)
 let submitterPollTimer = null;
 let staffPasscode = null;
 let staffPollTimer = null;
 let staffFilter = 'All';
+let submitterCache = [];
+let submitterFilter = 'All';
+let staffCache = [];
+let staffFormBuilt = { adminit:false, creatives:false };
 
 // ---------- API helper ----------
 async function api(action, extra) {
-  const payload = Object.assign({ action }, extra || {});
-  const isWrite = ['addComment','updateStatus','staffAuth','staffRequests'].includes(action);
+  const payload = Object.assign({ action, department: currentDept }, extra || {});
+  const isWrite = ['addComment','updateStatus','staffAuth','staffRequests','submitRequest'].includes(action);
   let res;
   if (isWrite) {
     res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
@@ -283,37 +351,105 @@ function esc(s){
 }
 function statusClass(s){ return 'status-' + String(s||'').trim().replace(/\s+/g,'-'); }
 function normStatus(s){ return String(s||'').trim(); }
+function cfg(){ return DEPARTMENTS[currentDept]; }
+
+// ---------- Department bar ----------
+function renderDeptBar(){
+  const bar = document.getElementById('deptBar');
+  bar.innerHTML = Object.keys(DEPARTMENTS).map(k => `
+    <div class="dept-card ${k===currentDept?'active':''}" data-dept="${k}">
+      <div class="dept-name">${esc(DEPARTMENTS[k].label)}</div>
+      <div class="dept-sub">${esc(DEPARTMENTS[k].sub)}</div>
+    </div>`).join('');
+  bar.querySelectorAll('.dept-card').forEach(card => {
+    card.addEventListener('click', () => switchDept(card.dataset.dept));
+  });
+}
+
+function switchDept(key){
+  if (key === currentDept) return;
+  currentDept = key;
+  renderDeptBar();
+
+  // Reset submitter state
+  submitterEmail = null;
+  submitterCache = [];
+  submitterFilter = 'All';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('submitterResults').innerHTML = '';
+  document.getElementById('submitterFilterBar').style.display = 'none';
+  document.getElementById('liveNoteSubmitter').style.display = 'none';
+  document.getElementById('submitterMsg').innerHTML = '';
+  clearInterval(submitterPollTimer);
+  updateSearchPanelText();
+
+  // Rebuild new-request tab for this department
+  document.getElementById('newTab').innerHTML = requestFormHtml('pub');
+  wireRequestForm('pub');
+
+  // Reset staff dashboard state if signed in
+  if (staffPasscode) {
+    staffFilter = 'All';
+    staffCache = [];
+    document.getElementById('staffNewWrap').innerHTML = '';
+    document.getElementById('staffNewWrap').style.display = 'none';
+    document.getElementById('staffNewToggleBtn').textContent = '+ New request';
+    staffFormBuilt = { adminit:false, creatives:false };
+    buildFilterBar();
+    refreshStaff();
+  }
+}
+
+function updateSearchPanelText(){
+  const c = cfg();
+  document.getElementById('checkHint').textContent =
+    c.searchType === 'email'
+      ? 'Enter the email address you used when you submitted the form.'
+      : 'Enter the name you used as "Task Alloted By" on the form.';
+  const input = document.getElementById('searchInput');
+  input.type = c.searchType === 'email' ? 'email' : 'text';
+  input.placeholder = c.searchPlaceholder;
+}
 
 // ---------- Ticket rendering ----------
 function ticketHtml(r, opts){
   opts = opts || {};
-  const remark = r['Expected Completion Date / Remark'];
-  const custom = r['Custom Remark'];
+  const c = cfg();
+  const status = r[c.statusField];
+  const comment = c.commentField ? r[c.commentField] : null;
   const showStaffControls = !!opts.staff;
 
   let remarkBlock = '';
-  if (remark || custom) {
-    remarkBlock = `<div class="ticket-remark">`
-      + (remark ? `<b>Team note:</b> ${esc(remark)}` : '')
-      + (remark && custom ? '<br><br>' : '')
-      + (custom ? esc(custom) : '')
-      + `</div>`;
+  if (comment) {
+    remarkBlock = `<div class="ticket-remark">${esc(comment)}</div>`;
   }
+
+  // Info grid: all form fields except title/name/detail, which are shown elsewhere
+  const skipKeys = new Set([c.titleField, c.nameField, c.detailField]);
+  const gridFields = c.formFields.filter(f => !skipKeys.has(f.header) && r[f.header]);
+  const gridHtml = gridFields.length ? `<div class="ticket-grid">${
+    gridFields.map(f => `<div><b>${esc(f.label)}:</b> ${esc(r[f.header])}</div>`).join('')
+  }</div>` : '';
 
   let staffControls = '';
   if (showStaffControls) {
-    const opts2 = STATUS_OPTIONS.map(s => `<option value="${s}" ${s===normStatus(r['Current Status'])?'selected':''}>${s}</option>`).join('');
+    const statusOpts = c.statusOptions.map(s => `<option value="${s}" ${s===normStatus(status)?'selected':''}>${s}</option>`).join('');
+    const updateInputs = (c.updateFields||[]).map(f => {
+      if (f.type === 'date') {
+        return `<input type="date" class="ufield" data-key="${f.key}" data-row="${r.rowIndex}" placeholder="${esc(f.label)}">`;
+      }
+      return `<input type="text" class="ufield" data-key="${f.key}" data-row="${r.rowIndex}" placeholder="${esc(f.label)}" value="${esc(r[f.header]||'')}">`;
+    }).join('');
     staffControls = `
       <div class="staff-controls">
-        <select data-row="${r.rowIndex}" class="statusSelect">${opts2}</select>
-        <input type="text" class="remarkInput" data-row="${r.rowIndex}" placeholder="Remark" value="${esc(remark||'')}">
-        <input type="date" class="dateInput" data-row="${r.rowIndex}">
+        <select data-row="${r.rowIndex}" class="statusSelect">${statusOpts}</select>
+        ${updateInputs}
         <button class="primary saveBtn" data-row="${r.rowIndex}" type="button">Update</button>
       </div>`;
   }
 
   let commentRow = '';
-  if (opts.submitter) {
+  if (opts.submitter && c.commentField) {
     commentRow = `
       <div class="comment-row">
         <textarea placeholder="Add a comment for the team..." class="commentInput" data-row="${r.rowIndex}"></textarea>
@@ -328,18 +464,13 @@ function ticketHtml(r, opts){
         <div class="ticket-top">
           <div>
             <div class="ticket-id">${esc(r['Ticket ID'])}</div>
-            <div class="ticket-type">${esc(r['Request Type'])}</div>
-            <div class="ticket-meta">${esc(r['Your Name'])}${r['Your Department'] ? ' · ' + esc(r['Your Department']) : ''} · ${esc(r['Timestamp'])}</div>
+            <div class="ticket-type">${esc(r[c.titleField])}</div>
+            <div class="ticket-meta">${esc(r[c.nameField])} · ${esc(r['Timestamp'])}</div>
           </div>
-          <span class="status-pill ${statusClass(r['Current Status'])}">${esc(r['Current Status']||'—')}</span>
+          <span class="status-pill ${statusClass(status)}">${esc(status||'—')}</span>
         </div>
-        <div class="ticket-details">${esc(r['Deatils Of Your Concern / Requirement.'])}</div>
-        <div class="ticket-grid">
-          <div><b>Location:</b> ${esc(r['Location Name (Branch / School / NGO)']||'—')}</div>
-          <div><b>Deadline:</b> ${esc(r['Date Required / Deadline']||'—')}</div>
-          <div><b>Completed on:</b> ${esc(r['Completion Date']||'—')}</div>
-          <div><b>Email:</b> ${esc(r['Email Address']||'—')}</div>
-        </div>
+        <div class="ticket-details">${esc(r[c.detailField]||'')}</div>
+        ${gridHtml}
         ${remarkBlock}
         ${staffControls}
         ${commentRow}
@@ -349,78 +480,57 @@ function ticketHtml(r, opts){
 
 // ---------- New Request form (shared by submitter + staff views) ----------
 function requestFormHtml(prefix){
-  const typeOpts = REQUEST_TYPES.map(t => `<option value="${t}">${t}</option>`).join('');
-  const locOpts = LOCATION_TYPES.map(t => `<option value="${t}">${t}</option>`).join('');
+  const c = cfg();
+  const fieldsHtml = c.formFields.map(f => {
+    const req = f.required ? ' *' : '';
+    let inputHtml;
+    if (f.type === 'select') {
+      inputHtml = `<select id="${prefix}_${f.key}">${f.options.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('')}</select>`;
+    } else if (f.type === 'textarea') {
+      inputHtml = `<textarea id="${prefix}_${f.key}" style="min-height:70px;"></textarea>`;
+    } else {
+      inputHtml = `<input type="${f.type}" id="${prefix}_${f.key}">`;
+    }
+    return `<div class="field-group"><label class="field-label">${esc(f.label)}${req}</label>${inputHtml}</div>`;
+  }).join('');
+
   return `
     <div class="panel">
       <h2>Submit a new request</h2>
-      <p class="hint">Fill in the details below — this is added directly to the tracker.</p>
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">Your name *</label>
-          <input type="text" id="${prefix}Name">
-        </div>
-        <div class="field-group">
-          <label class="field-label">Your department</label>
-          <input type="text" id="${prefix}Dept">
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">Request type *</label>
-          <select id="${prefix}Type">${typeOpts}</select>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Email address *</label>
-          <input type="email" id="${prefix}Email">
-        </div>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Details of your concern / requirement *</label>
-        <textarea id="${prefix}Details" style="min-height:80px;"></textarea>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">Location of concern</label>
-          <select id="${prefix}LocType">${locOpts}</select>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Location name (branch/school/NGO)</label>
-          <input type="text" id="${prefix}LocName">
-        </div>
-        <div class="field-group">
-          <label class="field-label">Date required / deadline</label>
-          <input type="date" id="${prefix}Deadline">
-        </div>
-      </div>
+      <p class="hint">Fill in the details below — this is added directly to the ${esc(c.label)} tracker.</p>
+      ${fieldsHtml}
       <button class="primary" id="${prefix}SubmitBtn" type="button">Submit request</button>
       <div id="${prefix}Msg"></div>
     </div>`;
 }
 
 function wireRequestForm(prefix, onSuccess){
+  const c = cfg();
+  const deptAtBind = currentDept;
   document.getElementById(prefix + 'SubmitBtn').addEventListener('click', async () => {
+    if (currentDept !== deptAtBind) return; // stale handler from a previous department render
     const msgEl = document.getElementById(prefix + 'Msg');
     const btn = document.getElementById(prefix + 'SubmitBtn');
-    const payload = {
-      name: document.getElementById(prefix + 'Name').value.trim(),
-      department: document.getElementById(prefix + 'Dept').value.trim(),
-      requestType: document.getElementById(prefix + 'Type').value,
-      details: document.getElementById(prefix + 'Details').value.trim(),
-      locationType: document.getElementById(prefix + 'LocType').value,
-      locationName: document.getElementById(prefix + 'LocName').value.trim(),
-      deadline: document.getElementById(prefix + 'Deadline').value,
-      email: document.getElementById(prefix + 'Email').value.trim()
-    };
-    if (!payload.name || !payload.requestType || !payload.details || !payload.email) {
-      msgEl.innerHTML = '<div class="msg error">Please fill in all required fields (*)</div>';
+    const payload = {};
+    let missing = [];
+    c.formFields.forEach(f => {
+      const el = document.getElementById(prefix + '_' + f.key);
+      const val = el ? el.value.trim() : '';
+      payload[f.key] = val;
+      if (f.required && !val) missing.push(f.label);
+    });
+    if (missing.length) {
+      msgEl.innerHTML = `<div class="msg error">Please fill in: ${esc(missing.join(', '))}</div>`;
       return;
     }
     btn.disabled = true; btn.textContent = 'Submitting...';
     try {
       const result = await api('submitRequest', payload);
       msgEl.innerHTML = `<div class="msg ok">Request submitted — your ticket ID is <b>${esc(result.ticketId)}</b>.</div>`;
-      ['Name','Dept','Details','LocName','Deadline'].forEach(f => document.getElementById(prefix + f).value = '');
+      c.formFields.forEach(f => {
+        const el = document.getElementById(prefix + '_' + f.key);
+        if (el && f.type !== 'select') el.value = '';
+      });
       if (onSuccess) onSuccess();
     } catch (err) {
       msgEl.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
@@ -428,10 +538,6 @@ function wireRequestForm(prefix, onSuccess){
     btn.disabled = false; btn.textContent = 'Submit request';
   });
 }
-
-// Submitter "New request" tab
-document.getElementById('newTab').innerHTML = requestFormHtml('pub');
-wireRequestForm('pub');
 
 document.getElementById('tabCheckBtn').addEventListener('click', () => {
   document.getElementById('tabCheckBtn').classList.add('active');
@@ -446,30 +552,28 @@ document.getElementById('tabNewBtn').addEventListener('click', () => {
   document.getElementById('checkTab').style.display = 'none';
 });
 
-// Staff "+ New request" toggle
-let staffFormBuilt = false;
 document.getElementById('staffNewToggleBtn').addEventListener('click', () => {
   const wrap = document.getElementById('staffNewWrap');
   const open = wrap.style.display === 'none';
   wrap.style.display = open ? 'block' : 'none';
   document.getElementById('staffNewToggleBtn').textContent = open ? 'Hide form' : '+ New request';
-  if (open && !staffFormBuilt) {
+  if (open && !staffFormBuilt[currentDept]) {
     wrap.innerHTML = requestFormHtml('staff');
     wireRequestForm('staff', refreshStaff);
-    staffFormBuilt = true;
+    staffFormBuilt[currentDept] = true;
   }
 });
 
 // ---------- Submitter flow ----------
 document.getElementById('lookupBtn').addEventListener('click', lookupSubmitter);
-document.getElementById('emailInput').addEventListener('keydown', e => { if(e.key==='Enter') lookupSubmitter(); });
+document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key==='Enter') lookupSubmitter(); });
 
 async function lookupSubmitter(){
-  const email = document.getElementById('emailInput').value.trim();
+  const val = document.getElementById('searchInput').value.trim();
   const msgEl = document.getElementById('submitterMsg');
   msgEl.innerHTML = '';
-  if (!email) { msgEl.innerHTML = '<div class="msg error">Enter an email address</div>'; return; }
-  submitterEmail = email;
+  if (!val) { msgEl.innerHTML = '<div class="msg error">Please enter a value to search</div>'; return; }
+  submitterEmail = val;
   submitterFilter = 'All';
   await refreshSubmitter();
   document.getElementById('liveNoteSubmitter').style.display = 'flex';
@@ -480,7 +584,7 @@ async function lookupSubmitter(){
 async function refreshSubmitter(){
   const msgEl = document.getElementById('submitterMsg');
   try{
-    submitterCache = await api('myRequests', { email: submitterEmail });
+    submitterCache = await api('myRequests', { search: submitterEmail });
     msgEl.innerHTML = '';
     buildSubmitterFilterBar();
     renderSubmitterCache();
@@ -489,15 +593,13 @@ async function refreshSubmitter(){
   }
 }
 
-let submitterCache = [];
-let submitterFilter = 'All';
-
 function buildSubmitterFilterBar(){
   const bar = document.getElementById('submitterFilterBar');
+  const c = cfg();
   if (!submitterCache.length) { bar.style.display = 'none'; return; }
-  const present = new Set(submitterCache.map(r => normStatus(r['Current Status']) || 'Pending'));
-  const opts = ['All', ...STATUS_OPTIONS.filter(s => present.has(s))];
-  if (opts.length <= 2) { bar.style.display = 'none'; return; } // not worth showing for one status
+  const present = new Set(submitterCache.map(r => normStatus(r[c.statusField]) || 'Pending'));
+  const opts = ['All', ...c.statusOptions.filter(s => present.has(s))];
+  if (opts.length <= 2) { bar.style.display = 'none'; return; }
   bar.style.display = 'flex';
   bar.innerHTML = opts.map(o => `<button data-f="${o}" class="${o===submitterFilter?'active':''}">${o}</button>`).join('');
   bar.querySelectorAll('button').forEach(b => {
@@ -513,9 +615,10 @@ function buildSubmitterFilterBar(){
 function renderSubmitterCache(){
   const resultsEl = document.getElementById('submitterResults');
   const msgEl = document.getElementById('submitterMsg');
-  const data = submitterFilter === 'All' ? submitterCache : submitterCache.filter(r => normStatus(r['Current Status']) === submitterFilter);
+  const c = cfg();
+  const data = submitterFilter === 'All' ? submitterCache : submitterCache.filter(r => normStatus(r[c.statusField]) === submitterFilter);
   if (!submitterCache.length) {
-    resultsEl.innerHTML = `<div class="panel empty"><div class="glyph">—</div>No requests found for this email yet.</div>`;
+    resultsEl.innerHTML = `<div class="panel empty"><div class="glyph">—</div>No requests found.</div>`;
     return;
   }
   if (!data.length) {
@@ -531,7 +634,7 @@ function renderSubmitterCache(){
       if (!text) return;
       btn.disabled = true;
       try{
-        await api('addComment', { email: submitterEmail, rowIndex: row, comment: text });
+        await api('addComment', { search: submitterEmail, rowIndex: row, comment: text });
         await refreshSubmitter();
       }catch(err){
         msgEl.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
@@ -582,7 +685,8 @@ async function staffLogin(){
 
 function buildFilterBar(){
   const bar = document.getElementById('filterBar');
-  const opts = ['All','Pending','In Process','On Hold','Ordered new','Completed','Cancelled'];
+  const c = cfg();
+  const opts = ['All', ...c.statusOptions];
   bar.innerHTML = opts.map(o => `<button data-f="${o}" class="${o===staffFilter?'active':''}">${o}</button>`).join('');
   bar.querySelectorAll('button').forEach(b => {
     b.addEventListener('click', () => {
@@ -594,7 +698,6 @@ function buildFilterBar(){
   });
 }
 
-let staffCache = [];
 async function refreshStaff(){
   try{
     staffCache = await api('staffRequests', { passcode: staffPasscode });
@@ -606,7 +709,8 @@ async function refreshStaff(){
 
 function renderStaffCache(){
   const resultsEl = document.getElementById('staffResults');
-  const data = staffFilter === 'All' ? staffCache : staffCache.filter(r => normStatus(r['Current Status']) === staffFilter);
+  const c = cfg();
+  const data = staffFilter === 'All' ? staffCache : staffCache.filter(r => normStatus(r[c.statusField]) === staffFilter);
   if (!data.length) {
     resultsEl.innerHTML = `<div class="panel empty"><div class="glyph">—</div>No requests in this view.</div>`;
     return;
@@ -616,11 +720,13 @@ function renderStaffCache(){
     btn.addEventListener('click', async () => {
       const row = btn.dataset.row;
       const status = resultsEl.querySelector(`.statusSelect[data-row="${row}"]`).value;
-      const remark = resultsEl.querySelector(`.remarkInput[data-row="${row}"]`).value;
-      const date = resultsEl.querySelector(`.dateInput[data-row="${row}"]`).value;
+      const fields = {};
+      resultsEl.querySelectorAll(`.ufield[data-row="${row}"]`).forEach(inp => {
+        fields[inp.dataset.key] = inp.value;
+      });
       btn.disabled = true; btn.textContent = 'Saving...';
       try{
-        await api('updateStatus', { passcode: staffPasscode, rowIndex: row, status, remark, completionDate: date });
+        await api('updateStatus', { rowIndex: row, status, fields: JSON.stringify(fields) });
         await refreshStaff();
       }catch(err){
         alert(err.message);
@@ -629,6 +735,12 @@ function renderStaffCache(){
     });
   });
 }
+
+// ---------- Init ----------
+renderDeptBar();
+updateSearchPanelText();
+document.getElementById('newTab').innerHTML = requestFormHtml('pub');
+wireRequestForm('pub');
 </script>
 </body>
 </html>
