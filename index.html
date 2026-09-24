@@ -383,6 +383,12 @@ function switchDept(key){
   clearInterval(submitterPollTimer);
   updateSearchPanelText();
 
+  // Always land back on "Check my requests" so a leftover open form doesn't carry over
+  document.getElementById('tabCheckBtn').classList.add('active');
+  document.getElementById('tabNewBtn').classList.remove('active');
+  document.getElementById('checkTab').style.display = 'block';
+  document.getElementById('newTab').style.display = 'none';
+
   // Rebuild new-request tab for this department
   document.getElementById('newTab').innerHTML = requestFormHtml('pub');
   wireRequestForm('pub');
