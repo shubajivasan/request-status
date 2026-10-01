@@ -847,11 +847,15 @@ function renderOverview(){
 
   const counts = {};
   c.statusOptions.forEach(s => counts[s] = 0);
+  let other = 0;
   data.forEach(r => {
     const s = normStatus(r[c.statusField]);
     if (s in counts) counts[s]++;
+    else other++; // blank / unrecognized status cell — not one of the dropdown options
   });
-  const maxCount = Math.max(1, ...Object.values(counts));
+  const rows = c.statusOptions.map(s => ({ label: s, count: counts[s], cls: statusClass(s) }));
+  if (other > 0) rows.push({ label: 'Other / blank status', count: other, cls: '' });
+  const maxCount = Math.max(1, ...rows.map(r => r.count));
 
   el.innerHTML = `
     <div class="stat-grid">
@@ -862,13 +866,14 @@ function renderOverview(){
     </div>
     <div class="bar-panel">
       <h2>By status</h2>
-      ${c.statusOptions.map(s => `
+      ${rows.map(r => `
         <div class="bar-row">
-          <div class="bar-label">${esc(s)}</div>
-          <div class="bar-track"><div class="bar-fill ${statusClass(s)}" style="width:${total?Math.round(counts[s]/maxCount*100):0}%;"></div></div>
-          <div class="bar-value">${counts[s]}</div>
+          <div class="bar-label">${esc(r.label)}</div>
+          <div class="bar-track"><div class="bar-fill ${r.cls}" style="width:${total?Math.round(r.count/maxCount*100):0}%;${r.cls?'':'background:var(--ink-soft);'}"></div></div>
+          <div class="bar-value">${r.count}</div>
         </div>
       `).join('')}
+      ${other > 0 ? `<div style="margin-top:14px;font-size:12.5px;color:var(--ink-soft);">${other} request${other===1?'':'s'} ${other===1?'has':'have'} a status cell that's blank or doesn't match the dropdown options — check those rows in the Sheet.</div>` : ''}
     </div>
   `;
 }
