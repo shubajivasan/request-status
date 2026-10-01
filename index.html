@@ -373,7 +373,9 @@ let staffCache = [];
 let staffFormBuilt = { adminit:false, creatives:false };
 
 // ---------- API helper ----------
-async function api(action, extra) {
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+async function apiOnce(action, extra) {
   const payload = Object.assign({}, extra || {}, { action, department: currentDept });
   const isWrite = ['addComment','updateStatus','staffAuth','staffRequests','submitRequest'].includes(action);
   let res;
@@ -383,9 +385,35 @@ async function api(action, extra) {
     const qs = new URLSearchParams(payload).toString();
     res = await fetch(API_URL + '?' + qs);
   }
-  const json = await res.json();
-  if (!json.success) throw new Error(json.error || 'Request failed');
+  let json;
+  try{
+    json = await res.json();
+  }catch(e){
+    // Apps Script occasionally returns a non-JSON page (auth/redirect hiccup) — treat as transient.
+    throw new Error('TRANSIENT: bad response');
+  }
+  if (!json.success) {
+    const msg = json.error || 'Request failed';
+    // "Unknown action" happens when the POST body gets dropped on Apps Script's redirect — transient, retry.
+    if (/unknown action/i.test(msg)) throw new Error('TRANSIENT: ' + msg);
+    throw new Error(msg);
+  }
   return json.data;
+}
+
+async function api(action, extra) {
+  const attempts = 3;
+  for (let i = 0; i < attempts; i++) {
+    try{
+      return await apiOnce(action, extra);
+    }catch(err){
+      const transient = /^TRANSIENT:/.test(err.message) || err instanceof TypeError;
+      if (!transient || i === attempts - 1) {
+        throw new Error(String(err.message || err).replace(/^TRANSIENT:\s*/, ''));
+      }
+      await sleep(400 * (i + 1));
+    }
+  }
 }
 
 function esc(s){
