@@ -510,9 +510,12 @@ function ticketHtml(r, opts){
     remarkBlock = `<div class="ticket-remark">${esc(comment)}</div>`;
   }
 
-  // Info grid: all form fields except title/name/detail, which are shown elsewhere
+  // Info grid: form fields plus any staff-entered update fields (remark, completion date, etc.)
+  // that already have a value — shown as plain text so submitters and staff alike can read them
+  // at a glance, not just inside the staff-only editable inputs further down.
   const skipKeys = new Set([c.titleField, c.nameField, c.detailField]);
-  const gridFields = c.formFields.filter(f => !skipKeys.has(f.header) && r[f.header]);
+  const infoFields = c.formFields.concat(c.updateFields || []);
+  const gridFields = infoFields.filter(f => !skipKeys.has(f.header) && r[f.header]);
   const gridHtml = gridFields.length ? `<div class="ticket-grid">${
     gridFields.map(f => `<div><b>${esc(f.label)}:</b> ${esc(r[f.header])}</div>`).join('')
   }</div>` : '';
