@@ -269,6 +269,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
           <div class="live-note"><span class="live-dot"></span>Live — refreshing automatically</div>
           <div style="display:flex;gap:8px;">
+            <button class="ghost" id="staffRefreshBtn" type="button">Refresh</button>
             <button class="ghost" id="staffNewToggleBtn" type="button">+ New request</button>
             <button class="ghost" id="signOutBtn" type="button">Sign out</button>
           </div>
@@ -641,6 +642,16 @@ document.getElementById('tabNewBtn').addEventListener('click', () => {
   document.getElementById('checkTab').style.display = 'none';
 });
 
+document.getElementById('staffRefreshBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('staffRefreshBtn');
+  btn.disabled = true; btn.textContent = 'Refreshing...';
+  try{
+    await refreshStaff();
+  }finally{
+    btn.disabled = false; btn.textContent = 'Refresh';
+  }
+});
+
 document.getElementById('staffNewToggleBtn').addEventListener('click', () => {
   const wrap = document.getElementById('staffNewWrap');
   const open = wrap.style.display === 'none';
@@ -883,6 +894,15 @@ function renderOverview(){
 
 function renderStaffCache(){
   const resultsEl = document.getElementById('staffResults');
+
+  // The 15s poll rebuilds this whole list — if staff are mid-edit (typing a remark, picking a
+  // status) that rebuild would wipe it out from under them. Skip this refresh while any field in
+  // the list is focused; the next poll after they're done will pick up fresh data as normal.
+  const active = document.activeElement;
+  if (active && resultsEl.contains(active) && active.tagName !== 'BUTTON') {
+    return;
+  }
+
   const c = cfg();
   const data = staffFilter === 'All' ? staffCache : staffCache.filter(r => normStatus(r[c.statusField]) === staffFilter);
   if (!data.length) {
