@@ -920,7 +920,7 @@ function renderStaffCache(){
       });
       btn.disabled = true; btn.textContent = 'Saving...';
       try{
-        await api('updateStatus', { rowIndex: row, status, fields: JSON.stringify(fields) });
+        await api('updateStatus', { passcode: staffPasscode, rowIndex: row, status, fields: JSON.stringify(fields) });
         await refreshStaff();
       }catch(err){
         alert(err.message);
